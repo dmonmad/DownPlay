@@ -1,0 +1,22 @@
+PODS:
+  - Flutter (1.0.0)
+  - ytview (0.0.1):
+    - Flutter
+
+DEPENDENCIES:
+  - Flutter (from `Flutter`)
+  - ytview (from `.symlinks/plugins/ytview/ios`)
+
+EXTERNAL SOURCES:
+  Flutter:
+    :path: Flutter
+  ytview:
+    :path: ".symlinks/plugins/ytview/ios"
+
+SPEC CHECKSUMS:
+  Flutter: 434fef37c0980e73bb6479ef766c45957d4b510c
+  ytview: 211c9c56fd31223a3be2c8f98942c69921a4c595
+
+PODFILE CHECKSUM: aafe91acc616949ddb318b77800a7f51bffa2a4c
+
+COCOAPODS: 1.10.1
