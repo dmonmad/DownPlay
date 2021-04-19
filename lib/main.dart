@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:yt_viewer/screens/home/home_page.dart';
-import 'package:yt_viewer/theme.dart';
+import 'package:downplay/screens/pages/home_page.dart';
+import 'package:downplay/theme.dart';
 
 void main() {
   runApp(MyApp());
@@ -10,7 +10,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'DownPlay',
       debugShowCheckedModeBanner: false,
       theme: lightThemeData(context),
       darkTheme: darkThemeData(context),

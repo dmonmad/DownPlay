@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.15)
-project(yt_viewer LANGUAGES CXX)
+project(DownPlay LANGUAGES CXX)
 
-set(BINARY_NAME "yt_viewer")
+set(BINARY_NAME "DownPlay")
 
 cmake_policy(SET CMP0063 NEW)
 

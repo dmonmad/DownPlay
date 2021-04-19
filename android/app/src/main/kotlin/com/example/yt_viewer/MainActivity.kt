@@ -1,4 +1,4 @@
-package com.example.yt_viewer
+package com.dmonmad.downplay
 
 import io.flutter.embedding.android.FlutterActivity
 

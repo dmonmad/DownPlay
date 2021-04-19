@@ -1,6 +1,6 @@
 {
-    "name": "yt_viewer",
-    "short_name": "yt_viewer",
+    "name": "DownPlay",
+    "short_name": "DownPlay",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",

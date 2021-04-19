@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:yt_viewer/consts.dart';
+import 'package:downplay/consts.dart';
 
 ThemeData lightThemeData(BuildContext context) {
   return ThemeData.light().copyWith(

@@ -3,9 +3,9 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:youtube_api/youtube_api.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
-import 'package:yt_viewer/consts.dart';
-import 'package:yt_viewer/logic.dart';
-import 'package:yt_viewer/providers/videoprovider.dart';
+import 'package:downplay/consts.dart';
+import 'package:downplay/logic.dart';
+import 'package:downplay/providers/videoprovider.dart';
 
 class Body extends StatefulWidget {
   @override
@@ -29,6 +29,7 @@ class _BodyState extends State<Body> {
 
   List<YT_API> videos = [];
   bool _loadingVideos = false;
+  String listTitle = "Trending:";
 
   loadVideos(query) async {
     setState(() {
@@ -40,12 +41,32 @@ class _BodyState extends State<Body> {
 
     setState(() {
       videos = videosResult;
+      listTitle = "Search results:";
+      _loadingVideos = false;
+    });
+  }
+
+  loadTrending() async {
+    setState(() {
+      _loadingVideos = true;
+    });
+
+    List<YT_API> videosResult =
+        await VideosProvider().getInstance().getTrending();
+
+    setState(() {
+      videos = videosResult;
+      listTitle = "Trending:";
       _loadingVideos = false;
     });
   }
 
   setVideo(YT_API video) {
     setState(() {
+      if (this.selectedVideo == video) {
+        this.selectedVideo = null;
+        return;
+      }
       this.selectedVideo = video;
       if (_ytcontroller != null) {
         _ytcontroller = null;
@@ -55,7 +76,7 @@ class _BodyState extends State<Body> {
     });
   }
 
-  downloadVideo(YT_API video){
+  downloadVideo(YT_API video) {
     startDownload(video.url, context);
   }
 
@@ -66,6 +87,7 @@ class _BodyState extends State<Body> {
   @override
   void initState() {
     super.initState();
+    loadTrending();
   }
 
   @override
@@ -81,7 +103,11 @@ class _BodyState extends State<Body> {
       _searcherFieldDebounce.cancel();
     _searcherFieldDebounce =
         Timer(const Duration(milliseconds: SEARCH_DEBOUNCE_TIME), () {
-      loadVideos(query);
+      if (query == "") {
+        loadTrending();
+      } else {
+        loadVideos(query);
+      }
     });
   }
 
@@ -89,8 +115,23 @@ class _BodyState extends State<Body> {
   Widget build(BuildContext context) {
     return Center(
         child: Column(
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         buildSearchBar(context),
+        !_loadingVideos
+            ? Padding(
+              padding: const EdgeInsets.only(right: kDefaultPadding, top: kDefaultPadding/2, bottom: kDefaultPadding/2),
+              child: Text(
+                  listTitle,
+                  style: TextStyle(
+                      color: Colors.grey[800],
+                      fontWeight: FontWeight.w500,
+                      fontStyle: FontStyle.normal,
+                      fontFamily: 'Open Sans',
+                      fontSize: 20),
+                ),
+            )
+            : Container(),
         _loadingVideos
             ? Padding(
                 padding: EdgeInsets.only(top: kDefaultPadding),
@@ -102,35 +143,47 @@ class _BodyState extends State<Body> {
                   )
                 : Padding(
                     padding: EdgeInsets.only(top: kDefaultPadding),
-                    child: Text('Nada por aquí...'),
+                    child: Text('No hay resultados'),
                   )
       ],
     ));
   }
 
-  Padding buildSearchBar(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.only(top: kDefaultPadding / 2, right: kDefaultPadding / 2, left: kDefaultPadding / 2),
-      child: Column(
-        children: [
-          Card(
-            child: TextField(
-              controller: _searchController,
-              onSubmitted: (value) {
-                _onSearchChanged(value);
-              },
-              decoration: InputDecoration(
-                border: OutlineInputBorder(),
-                hintText: 'Search by video title',
+  Container buildSearchBar(BuildContext context) {
+    return Container(
+      color: Colors.transparent,
+      child: Padding(
+        padding: EdgeInsets.only(
+            top: kDefaultPadding / 2,
+            right: kDefaultPadding / 2,
+            left: kDefaultPadding / 2),
+        child: Container(
+          color: Colors.transparent,
+          child: Column(
+            children: [
+              Card(
+                child: TextField(
+                  controller: _searchController,
+                  onSubmitted: (value) {
+                    _onSearchChanged(value);
+                  },
+                  onChanged: (value) {
+                    _onSearchChanged(value);
+                  },
+                  decoration: InputDecoration(
+                    border: OutlineInputBorder(),
+                    hintText: 'Search by video title',
+                  ),
+                ),
               ),
-            ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
 
-  ListView buildVideoList() {
+  Widget buildVideoList() {
     return ListView.builder(
       itemCount: videos.length + 1,
       itemBuilder: (BuildContext context, int index) {
@@ -141,20 +194,20 @@ class _BodyState extends State<Body> {
         return Container(
           color: Colors.white,
           child: Card(
-            child: Column(
-              children: [
-                GestureDetector(
-                  onTap: () {
-                    setVideo(video);
-                  },
-                  child: Row(
+            child: InkWell(
+              onTap: () {
+                setVideo(video);
+              },
+              child: Column(
+                children: [
+                  Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: <Widget>[
                       Image(
                           height: 90,
                           fit: BoxFit.fitHeight,
                           image: NetworkImage(getThumbnail(video.thumbnail))),
-                      Flexible(
+                      Expanded(
                         child: Padding(
                           padding: EdgeInsets.all(8),
                           child: Text(video.title),
@@ -162,10 +215,12 @@ class _BodyState extends State<Body> {
                       ),
                     ],
                   ),
-                ),
-                Divider(),
-                selectedVideo == video ? buildVideoOptions(video) : Container(),
-              ],
+                  selectedVideo == video ? Divider() : Container(),
+                  selectedVideo == video
+                      ? buildVideoOptions(video)
+                      : Container(),
+                ],
+              ),
             ),
           ),
         );
