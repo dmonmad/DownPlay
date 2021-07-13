@@ -3,6 +3,8 @@ import 'package:downplay/consts.dart';
 
 ThemeData lightThemeData(BuildContext context) {
   return ThemeData.light().copyWith(
+    textTheme: ThemeData.light().textTheme.apply(fontFamily: "Roboto"),
+    primaryTextTheme: ThemeData.light().textTheme.apply(fontFamily: "Roboto"),
     visualDensity: VisualDensity.adaptivePlatformDensity,
     primaryColor: kPrimaryColor,
     scaffoldBackgroundColor: Colors.white,
@@ -17,6 +19,8 @@ ThemeData lightThemeData(BuildContext context) {
 
 ThemeData darkThemeData(BuildContext context) {
   return ThemeData.dark().copyWith(
+    textTheme: ThemeData.dark().textTheme.apply(fontFamily: "Roboto"),
+    primaryTextTheme: ThemeData.dark().textTheme.apply(fontFamily: "Roboto"),
     visualDensity: VisualDensity.adaptivePlatformDensity,
     primaryColor: kPrimaryColor,
     scaffoldBackgroundColor: kContentColorLightTheme,

@@ -3,20 +3,14 @@ import 'package:downplay/consts.dart';
 import 'package:devicelocale/devicelocale.dart';
 
 class VideosProvider {
-  VideosProvider instance;
+  static final VideosProvider instance = VideosProvider._();
+  VideosProvider._();
 
-  getInstance() {
-    if (instance == null) {
-      instance = this;
-    }
-    return instance;
-  }
-
-  Future<List<YT_API>> getMusic(String query) async {
+  Future<List<YT_API>> getMusic(String query, int maxResults) async {
     YoutubeAPI api = new YoutubeAPI(
       YOUTUBE_API_KEY,
       type: 'video',
-      maxResults: 15,
+      maxResults: maxResults,
     );
     List<YT_API> videosResult = await api.search(query);
     return videosResult;
