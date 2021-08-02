@@ -2,9 +2,7 @@ import 'package:downplay/components/appBar.dart';
 import 'package:downplay/components/downloads.dart';
 import 'package:downplay/components/drawer.dart';
 import 'package:downplay/consts.dart';
-import 'package:downplay/providers/DownloadsProvider.dart';
 import 'package:flutter/material.dart';
-import 'package:youtube_api/youtube_api.dart';
 
 class DownloadsPage extends StatefulWidget {
   @override

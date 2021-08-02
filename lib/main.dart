@@ -1,4 +1,4 @@
-import 'package:downplay/providers/downloadsprovider.dart';
+import 'package:downplay/providers/DownloadsProvider.dart';
 import 'package:downplay/screens/pages/DownloadsPage.dart';
 import 'package:downplay/screens/pages/PlaylistDownloadPage.dart';
 import 'package:downplay/screens/pages/SettingsPage.dart';

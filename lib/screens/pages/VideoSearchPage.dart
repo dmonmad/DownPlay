@@ -1,14 +1,11 @@
 import 'dart:async';
 
 import 'package:downplay/components/appBar.dart';
-import 'package:downplay/components/bottomBar.dart';
 import 'package:downplay/components/drawer.dart';
 import 'package:downplay/consts.dart';
-import 'package:downplay/models/download.dart';
-import 'package:downplay/providers/downloadsprovider.dart';
-import 'package:downplay/providers/videoprovider.dart';
+import 'package:downplay/providers/DownloadsProvider.dart';
+import 'package:downplay/providers/VideoProvider.dart';
 import 'package:flutter/material.dart';
-import 'package:getwidget/components/floating_widget/gf_floating_widget.dart';
 import 'package:getwidget/components/list_tile/gf_list_tile.dart';
 import 'package:provider/provider.dart';
 import 'package:youtube_api/youtube_api.dart';
@@ -19,6 +16,8 @@ class VideoSearchPage extends StatefulWidget {
 }
 
 class _VideoSearchPageState extends State<VideoSearchPage> {
+  final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
+
   YT_API selectedVideo;
 
   Timer _searcherFieldDebounce;
@@ -45,6 +44,7 @@ class _VideoSearchPageState extends State<VideoSearchPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: _scaffoldKey,
       appBar: buildAppBar(context, 'Video download'),
       drawer: buildDrawer(context),
       body: Container(
@@ -55,7 +55,7 @@ class _VideoSearchPageState extends State<VideoSearchPage> {
             children: [
               buildSearchBar(context),
               _loadingVideos
-                  ? Expanded(child: Center(child: LinearProgressIndicator()))
+                  ? Expanded(child: Center(child: CircularProgressIndicator()))
                   : videos.length > 0
                       ? Expanded(
                           child: Container(
@@ -78,11 +78,18 @@ class _VideoSearchPageState extends State<VideoSearchPage> {
                         )
                       : Expanded(
                           child: Center(
-                          child: Text(
-                            'No videos to show! Try searching something :)',
-                            style: TextStyle(color: Colors.white),
-                          ),
-                        ))
+                              child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Image.asset('assets/no_results.png',
+                                height: MediaQuery.of(context).size.width / 2,
+                                width: MediaQuery.of(context).size.width / 2),
+                            Text(
+                              'No videos to show! Try searching something :)',
+                              style: TextStyle(color: Colors.white),
+                            ),
+                          ],
+                        )))
             ],
           ))),
     );
@@ -100,13 +107,46 @@ class _VideoSearchPageState extends State<VideoSearchPage> {
         icon: Icon(Icons.download_rounded, color: Colors.white),
         padding: EdgeInsets.zero,
         onTap: () {
-          Provider.of<DownloadsProvider>(context).startDownload(video, context);
+          downloadVideo(video);
         },
       ),
     );
   }
 
-  
+  downloadVideo(YT_API video) async {
+    ScaffoldMessengerState scaffoldMessenger = ScaffoldMessenger.of(context);
+    DownloadsProvider downloadsProvider =
+        Provider.of<DownloadsProvider>(context, listen: false);
+    bool downloadResult = await downloadsProvider.startDownload(video, context);
+
+    ScaffoldFeatureController controller;
+
+    if (downloadResult) {
+      controller = scaffoldMessenger.showSnackBar(
+        SnackBar(
+          content:
+              Row(mainAxisAlignment: MainAxisAlignment.spaceAround, children: [
+            Icon(Icons.check, color: Colors.white),
+            Text('Se ha descargado ${video.title}.mp3')
+          ]),
+          backgroundColor: Colors.green,
+        ),
+      );
+    } else {
+      controller = scaffoldMessenger.showSnackBar(
+        SnackBar(
+            backgroundColor: Colors.red,
+            content: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  Icon(Icons.check, color: Colors.white),
+                  Text('Hubo un error descargando ${video.title}')
+                ])),
+      );
+    }
+    await controller.closed;
+  }
+
   Container buildSearchBar(BuildContext context) {
     return Container(
       color: Colors.transparent,
@@ -120,6 +160,7 @@ class _VideoSearchPageState extends State<VideoSearchPage> {
           child: Column(
             children: [
               Card(
+                elevation: 5,
                 child: TextField(
                   controller: _searchController,
                   onSubmitted: (value) {
@@ -128,10 +169,13 @@ class _VideoSearchPageState extends State<VideoSearchPage> {
                   onChanged: (value) {
                     _onSearchChanged(value);
                   },
+                  style: TextStyle(color: Colors.white),
                   decoration: InputDecoration(
-                    border: OutlineInputBorder(),
-                    hintText: 'Darude - Sandstorm...',
-                  ),
+                      filled: true,
+                      fillColor: kPrimaryColor,
+                      prefixIcon: Icon(Icons.search, color: Colors.white),
+                      hintText: 'Darude - Sandstorm...',
+                      hintStyle: TextStyle(color: Colors.white60)),
                 ),
               ),
             ],
@@ -163,10 +207,10 @@ class _VideoSearchPageState extends State<VideoSearchPage> {
           Timer(const Duration(milliseconds: SEARCH_DEBOUNCE_TIME), () {
         loadVideos(query);
       });
+    } else {
+      videos = [];
     }
   }
-
-  downloadVideo(YT_API video, context) {}
 
   getThumbnail(thumb) {
     return thumb['medium']['url'];

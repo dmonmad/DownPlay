@@ -1,3 +1,6 @@
+import 'package:downplay/components/appBar.dart';
+import 'package:downplay/components/drawer.dart';
+import 'package:downplay/consts.dart';
 import 'package:flutter/material.dart';
 
 class SettingsPage extends StatefulWidget {
@@ -8,8 +11,11 @@ class SettingsPage extends StatefulWidget {
 class _SettingsPageState extends State<SettingsPage> {
   @override
   Widget build(BuildContext context) {
-    return Container(
-      
-    );
+    return Scaffold(
+        appBar: buildAppBar(context, 'Settings'),
+        drawer: buildDrawer(context),
+        body: Container(
+          decoration: BoxDecoration(color: kPrimaryColor),
+        ));
   }
 }

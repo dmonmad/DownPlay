@@ -1,5 +1,7 @@
 import 'package:downplay/consts.dart';
 import 'package:downplay/screens/pages/DownloadsPage.dart';
+import 'package:downplay/screens/pages/PlaylistDownloadPage.dart';
+import 'package:downplay/screens/pages/SettingsPage.dart';
 import 'package:downplay/screens/pages/VideoSearchPage.dart';
 import 'package:flutter/material.dart';
 
@@ -49,7 +51,7 @@ Drawer buildDrawer(BuildContext context) {
                     Navigator.pushReplacement(
                         context,
                         MaterialPageRoute(
-                            builder: (context) => VideoSearchPage()));
+                            builder: (context) => PlayListDownloadPage()));
                   }),
             ),
             Container(
@@ -67,7 +69,7 @@ Drawer buildDrawer(BuildContext context) {
                   onTap: () {
                     _selectedIndex = 2;
                     Navigator.of(context).pushReplacement(MaterialPageRoute(
-                        builder: (context) => VideoSearchPage()));
+                        builder: (context) => SettingsPage()));
                   }),
             ),
             Container(

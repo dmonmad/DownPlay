@@ -1,19 +1,13 @@
-import 'dart:convert';
-
 import 'package:diacritic/diacritic.dart';
 import 'package:downplay/models/download.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:youtube_api/youtube_api.dart';
 import 'package:youtube_explode_dart/youtube_explode_dart.dart';
-import 'package:flutter_ffmpeg/flutter_ffmpeg.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:downloads_path_provider/downloads_path_provider.dart';
 import 'dart:io';
 
 class DownloadsProvider extends ChangeNotifier {
-
-  final FlutterFFmpegConfig _flutterFFmpegConfig = new FlutterFFmpegConfig();
   final YoutubeExplode ytexp = YoutubeExplode();
 
   List<Download> activeDownloads = [];
@@ -28,18 +22,17 @@ class DownloadsProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  startDownload(YT_API video, BuildContext context) async {
-    Download newDownload = new Download();
-
+  Future<bool> startDownload(YT_API video, BuildContext context) async {
+    Download newDownload = new Download(video: video);
     addActiveDownload(newDownload);
 
     try {
       PermissionStatus storagePerm = await Permission.storage.request();
       if (!storagePerm.isGranted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        ScaffoldMessenger.maybeOf(context).showSnackBar(SnackBar(
             content: Text(
                 'Debes dar acceso al almacenamiento para poder guardar el archivo')));
-        return;
+        return false;
       }
 
       video.url.trim();
@@ -62,10 +55,11 @@ class DownloadsProvider extends ChangeNotifier {
           .replaceAll('?', '')
           .replaceAll('[', '')
           .replaceAll(']', '')
-          .replaceAll('^', '')
-          .replaceAll(';', '')
+          .replaceAll('"', '')
           .replaceAll('<', '')
           .replaceAll('>', '')
+          .replaceAll('^', '')
+          .replaceAll(';', '')
           .replaceAll('|', '');
 
       fileName = removeDiacritics(fileName);
@@ -97,26 +91,13 @@ class DownloadsProvider extends ChangeNotifier {
         // Write to file.
         output.add(data);
       }
+
       output.close();
-      removeActiveDownload(newDownload);
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content:
-            Row(mainAxisAlignment: MainAxisAlignment.spaceAround, children: [
-          Icon(Icons.check, color: Colors.white),
-          Text('Se ha descargado ${ytvideo.title}.mp3')
-        ]),
-        backgroundColor: Colors.green,
-      ));
+      
+      return true;
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          backgroundColor: Colors.red,
-          content:
-              Row(mainAxisAlignment: MainAxisAlignment.spaceAround, children: [
-            Icon(Icons.check, color: Colors.white),
-            Text('Hubo un error descargando ${video.title}')
-          ])));
       print(e);
-      removeActiveDownload(newDownload);
+      return false;
     }
   }
 }
