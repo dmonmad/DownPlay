@@ -5,7 +5,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class PlayListDownloadPage extends StatefulWidget {
-  const PlayListDownloadPage({Key key}) : super(key: key);
+  const PlayListDownloadPage() : super();
 
   @override
   _PlayListDownloadPageState createState() => _PlayListDownloadPageState();

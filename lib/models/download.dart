@@ -1,11 +1,11 @@
 import 'package:youtube_api/youtube_api.dart';
 
 class Download {
-  YT_API _video;
+  YouTubeVideo _video;
 
-  YT_API get video => _video;
+  YouTubeVideo get video => _video;
 
-  set video(YT_API video) {
+  set video(YouTubeVideo video) {
     _video = video;
   }
 
@@ -35,11 +35,11 @@ class Download {
 
   bool _inprogress;
   Download({
-    YT_API video,
-    double progress,
-    bool success,
-    bool error,
-    bool inprogress,
+    required YouTubeVideo video,
+    required double progress,
+    required bool success,
+    required bool error,
+    required bool inprogress,
   })  : _video = video,
         _progress = progress,
         _success = success,

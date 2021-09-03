@@ -1,14 +1,15 @@
-import 'dart:async';
-
 import 'package:downplay/components/appBar.dart';
 import 'package:downplay/components/drawer.dart';
 import 'package:downplay/consts.dart';
 import 'package:downplay/providers/DownloadsProvider.dart';
 import 'package:downplay/providers/VideoProvider.dart';
+import 'package:easy_debounce/easy_debounce.dart';
 import 'package:flutter/material.dart';
+import 'package:getwidget/components/card/gf_card.dart';
 import 'package:getwidget/components/list_tile/gf_list_tile.dart';
 import 'package:provider/provider.dart';
 import 'package:youtube_api/youtube_api.dart';
+import 'package:youtube_explode_dart/youtube_explode_dart.dart';
 
 class VideoSearchPage extends StatefulWidget {
   @override
@@ -18,16 +19,11 @@ class VideoSearchPage extends StatefulWidget {
 class _VideoSearchPageState extends State<VideoSearchPage> {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
 
-  YT_API selectedVideo;
+  YouTubeVideo? selectedVideo;
 
-  Timer _searcherFieldDebounce;
-  TextEditingController _searchController;
-  static const historyLength = 5;
-  List<String> _searchHistory = [];
-  List<String> filteredSearchHistory;
-  String selectedTerm;
+  TextEditingController _searchController = new TextEditingController();
 
-  List<YT_API> videos = [];
+  List<YouTubeVideo> videos = [];
   bool _loadingVideos = false;
   int maxVideosToLoad = 20;
 
@@ -70,7 +66,7 @@ class _VideoSearchPageState extends State<VideoSearchPage> {
                               shrinkWrap: true,
                               itemCount: 20,
                               itemBuilder: (BuildContext context, int index) {
-                                YT_API video = videos[index];
+                                YouTubeVideo video = videos[index];
                                 return buildVideoTile(video);
                               },
                             ),
@@ -95,25 +91,18 @@ class _VideoSearchPageState extends State<VideoSearchPage> {
     );
   }
 
-  Widget buildVideoTile(YT_API video) {
-    return Card(
-      color: kPrimaryColor,
-      child: GFListTile(
-        title: Text(video.title, style: TextStyle(color: Colors.white)),
-        avatar: Container(
-            height: 90,
-            width: 160,
-            child: Image.network(getThumbnail(video.thumbnail))),
-        icon: Icon(Icons.download_rounded, color: Colors.white),
-        padding: EdgeInsets.zero,
-        onTap: () {
-          downloadVideo(video);
-        },
-      ),
-    );
+  Widget buildVideoTile(YouTubeVideo video) {
+    return GFCard(
+        color: kPrimaryColor,
+        image: Image.network(getThumbnail(video.thumbnail)),
+        height: 90,
+        title: GFListTile(
+          title: Text(video.title),
+        ),
+        showOverlayImage: true);
   }
 
-  downloadVideo(YT_API video) async {
+  downloadVideo(YouTubeVideo video) async {
     ScaffoldMessengerState scaffoldMessenger = ScaffoldMessenger.of(context);
     DownloadsProvider downloadsProvider =
         Provider.of<DownloadsProvider>(context, listen: false);
@@ -190,7 +179,7 @@ class _VideoSearchPageState extends State<VideoSearchPage> {
       _loadingVideos = true;
     });
 
-    List<YT_API> videosResult =
+    List<YouTubeVideo> videosResult =
         await VideosProvider.instance.getMusic(query, maxVideosToLoad);
 
     setState(() {
@@ -200,19 +189,16 @@ class _VideoSearchPageState extends State<VideoSearchPage> {
   }
 
   _onSearchChanged(String query) {
-    if (_searcherFieldDebounce != null && _searcherFieldDebounce.isActive)
-      _searcherFieldDebounce.cancel();
-    if (query != "") {
-      _searcherFieldDebounce =
-          Timer(const Duration(milliseconds: SEARCH_DEBOUNCE_TIME), () {
-        loadVideos(query);
-      });
-    } else {
-      videos = [];
-    }
+    EasyDebounce.debounce(
+        'searcher-debouncer', // <-- An ID for this particular debouncer
+        Duration(
+            milliseconds: SEARCH_DEBOUNCE_TIME), // <-- The debounce duration
+        () => loadVideos(query) // <-- The target method
+        );
   }
 
-  getThumbnail(thumb) {
-    return thumb['medium']['url'];
+  String getThumbnail(Thumbnail thumb) {
+    
+    return thumb;
   }
 }

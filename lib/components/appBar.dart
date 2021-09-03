@@ -1,7 +1,7 @@
 import 'package:downplay/consts.dart';
 import 'package:flutter/material.dart';
 
-Widget buildAppBar(BuildContext context, String title) {
+PreferredSizeWidget buildAppBar(BuildContext context, String title) {
   return AppBar(    
     elevation: 2,
     centerTitle: true,

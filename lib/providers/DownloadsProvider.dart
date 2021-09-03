@@ -1,10 +1,10 @@
 import 'package:diacritic/diacritic.dart';
+import 'package:downloads_path_provider_28/downloads_path_provider_28.dart';
 import 'package:downplay/models/download.dart';
 import 'package:flutter/material.dart';
 import 'package:youtube_api/youtube_api.dart';
 import 'package:youtube_explode_dart/youtube_explode_dart.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:downloads_path_provider/downloads_path_provider.dart';
 import 'dart:io';
 
 class DownloadsProvider extends ChangeNotifier {
@@ -22,14 +22,19 @@ class DownloadsProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<bool> startDownload(YT_API video, BuildContext context) async {
-    Download newDownload = new Download(video: video);
+  Future<bool> startDownload(YouTubeVideo video, BuildContext context) async {
+    Download newDownload = new Download(
+        video: video,
+        error: false,
+        inprogress: true,
+        progress: 0,
+        success: false);
     addActiveDownload(newDownload);
 
     try {
       PermissionStatus storagePerm = await Permission.storage.request();
       if (!storagePerm.isGranted) {
-        ScaffoldMessenger.maybeOf(context).showSnackBar(SnackBar(
+        ScaffoldMessenger.maybeOf(context)!.showSnackBar(SnackBar(
             content: Text(
                 'Debes dar acceso al almacenamiento para poder guardar el archivo')));
         return false;
@@ -39,7 +44,7 @@ class DownloadsProvider extends ChangeNotifier {
 
       Video ytvideo = await ytexp.videos.get(video.url);
       Directory downloadDirectory =
-          await DownloadsPathProvider.downloadsDirectory;
+          await DownloadsPathProvider.downloadsDirectory as Directory;
       Directory(downloadDirectory.path).createSync();
       StreamManifest manifest =
           await ytexp.videos.streamsClient.getManifest(video.url);
@@ -93,7 +98,7 @@ class DownloadsProvider extends ChangeNotifier {
       }
 
       output.close();
-      
+
       return true;
     } catch (e) {
       print(e);

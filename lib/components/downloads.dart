@@ -7,7 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 class DownloadsWidget extends StatefulWidget {
-  const DownloadsWidget({Key key}) : super(key: key);
+  const DownloadsWidget() : super();
 
   @override
   _DownloadsWidgetState createState() => _DownloadsWidgetState();
@@ -40,8 +40,8 @@ class _DownloadsWidgetState extends State<DownloadsWidget> {
                           begin: const FractionalOffset(0.0, 0.0),
                           end: const FractionalOffset(1.0, 0.0),
                           stops: [
-                            downProvider.activeDownloads[index].progress ?? 0,
-                            downProvider.activeDownloads[index].progress ?? 0
+                            downProvider.activeDownloads[index].progress,
+                            100
                           ],
                           tileMode: TileMode.clamp,
                         ),
